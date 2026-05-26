@@ -1,0 +1,27 @@
+{
+	"name": "ai-app-generator",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"private": true,
+	"scripts": {
+		"dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+		"dev:server": "npm run dev --prefix server",
+		"dev:client": "npm run dev --prefix client"
+	},
+	"devDependencies": {
+		"concurrently": "^8.2.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/guptadheerajj/ai-app-generator.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "commonjs",
+	"bugs": {
+		"url": "https://github.com/guptadheerajj/ai-app-generator/issues"
+	},
+	"homepage": "https://github.com/guptadheerajj/ai-app-generator#readme"
+}
