@@ -1,4 +1,5 @@
 // server/src/db.ts
+import "dotenv/config";
 import { PrismaClient } from "../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
@@ -10,10 +11,15 @@ const globalForPrisma = globalThis as unknown as {
 	pool: Pool | undefined;
 };
 
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+	throw new Error("DATABASE_URL is missing. Ensure server/.env is loaded.");
+}
+
 const pool =
 	globalForPrisma.pool ||
 	new Pool({
-		connectionString: process.env.DATABASE_URL,
+		connectionString: databaseUrl,
 	});
 
 const adapter = new PrismaPg(pool);
