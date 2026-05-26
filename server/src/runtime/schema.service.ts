@@ -53,6 +53,31 @@ export async function ensureTable(entity: EntityConfig): Promise<void> {
   `;
 
 	await prisma.$executeRawUnsafe(sql);
+
+	// Add any missing columns if the table already existed.
+	const existingColumns = (await prisma.$queryRawUnsafe(
+		`SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = $1`,
+		tableName,
+	)) as { column_name: string }[];
+
+	const existingColumnSet = new Set(
+		existingColumns.map((col) => col.column_name.toLowerCase()),
+	);
+
+	const missingColumns = entity.fields
+		.map((field) => {
+			const colName = field.name.toLowerCase().replace(/[^a-z0-9_]/g, "_");
+			const colType = toPostgresType(field.type);
+			const notNull = field.required ? "NOT NULL" : "";
+			return { colName, colType, notNull };
+		})
+		.filter(({ colName }) => !existingColumnSet.has(colName));
+
+	for (const { colName, colType, notNull } of missingColumns) {
+		const alterSql =
+			`ALTER TABLE "${tableName}" ADD COLUMN "${colName}" ${colType} ${notNull}`.trim();
+		await prisma.$executeRawUnsafe(alterSql);
+	}
 	console.log(`✓ Table ensured: ${tableName}`);
 }
 

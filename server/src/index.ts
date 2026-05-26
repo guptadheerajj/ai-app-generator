@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { configRouter } from "./config/config.routes";
 import { buildRuntimeRouter } from "./runtime/router.factory";
 import { loadConfig } from "./config/config.service";
+import { ensureAllTables } from "./runtime/schema.service";
 
 dotenv.config();
 
@@ -45,6 +46,9 @@ app.post(
 				res.status(404).json({ success: false, error: "Config not found" });
 				return;
 			}
+
+			// Ensure tables reflect the latest config before activating routes.
+			await ensureAllTables(result.config.entities);
 
 			// Build a new router from this config and swap it in
 			activeRuntimeRouter = buildRuntimeRouter(result.config, result.id);
